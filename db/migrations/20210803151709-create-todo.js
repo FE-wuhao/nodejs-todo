@@ -2,7 +2,7 @@
  * @Author: 吴灏
  * @Date: 2021-08-03 23:17:09
  * @LastEditors: 吴灏
- * @LastEditTime: 2021-08-03 23:17:36
+ * @LastEditTime: 2021-08-04 00:00:30
  * @Description: file content
  */
 "use strict";
@@ -23,6 +23,9 @@ module.exports = {
       },
       description: {
         type: Sequelize.STRING,
+      },
+      status: {
+        type: Sequelize.INTEGER,
       },
     });
   },

@@ -2,11 +2,12 @@
  * @Author: 吴灏
  * @Date: 2021-08-03 21:56:23
  * @LastEditors: 吴灏
- * @LastEditTime: 2021-08-03 22:44:32
+ * @LastEditTime: 2021-08-04 00:28:29
  * @Description: file content
  */
 const express = require("express");
 const bodyParser = require("body-parser");
+const models = require("../db/models");
 
 const app = express();
 
@@ -35,89 +36,130 @@ const EStatus = {};
 
 /**
  * 查询列表
+ * 3种任务状态：1->待办，2->完成，3->删除，-1->全部
  */
-app.get("/list/:status/:page", (req, res, next) => {
-  const { status, page } = req.params;
+app.get("/list/:status/:page", async (req, res, next) => {
+  try {
+    const { status, page } = req.params;
 
-  const code = 0;
+    const limit = 10;
 
-  const data = [];
+    const offset = (page - 1) * limit;
 
-  const msg = "请求成功";
+    const where = {};
 
-  res.json({
-    code,
-    data,
-    msg,
-  });
+    if (status != -1) {
+      where.status = status;
+    }
+
+    const result = await models.Todo.findAndCountAll({
+      where,
+      limit,
+      offset,
+    });
+
+    res.json({
+      code: 0,
+      data: result,
+      msg: "查询成功",
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
  * 创建一个任务
  */
-app.post("/create", (req, res) => {
-  const { name, deadline, description } = req.body;
+app.post("/create", async (req, res, next) => {
+  try {
+    const { name, deadline, description } = req.body;
 
-  const code = 0;
+    const result = await models.Todo.create({
+      name,
+      deadline,
+      description,
+    });
 
-  const data = { name, deadline, description };
-
-  const msg = "创建成功";
-
-  res.json({
-    code,
-    data,
-    msg,
-  });
+    res.json({
+      code: 0,
+      data: result,
+      msg: "创建成功",
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
  * 修改一个任务
  */
-app.post("/update", (req, res) => {
-  const { id, name, deadline, description } = req.body;
+app.post("/update", async (req, res, next) => {
+  try {
+    const { id, name, deadline, description } = req.body;
 
-  const code = 0;
+    const result = await models.Todo.findOne({ where: { id } });
 
-  const data = { id, name, deadline, description };
+    if (result) {
+      // 执行更新逻辑
+      const updateResult = await result.update({
+        id,
+        name,
+        deadline,
+        description,
+      });
 
-  const msg = "修改成功";
-
-  res.json({
-    code,
-    data,
-    msg,
-  });
+      res.json({
+        code: 0,
+        data: updateResult,
+        msg: "修改成功",
+      });
+    } else {
+      next(new Error("任务项不存在"));
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
  * 修改一个任务的状态（待办/完成/删除）
  */
-app.post("/updateStatus", (req, res) => {
-  const { id, status } = req.body;
+app.post("/updateStatus", async (req, res, next) => {
+  try {
+    const { id, status } = req.body;
 
-  const code = 0;
+    const result = await models.Todo.findOne({ where: { id } });
 
-  const data = { id, status };
+    if (result && status != result.status) {
+      // 执行更新逻辑
+      const updateResult = await result.update({
+        id,
+        status,
+      });
 
-  const msg = "修改任务状态成功";
-
-  res.json({
-    code,
-    data,
-    msg,
-  });
+      res.json({
+        code: 0,
+        data: updateResult,
+        msg: "修改任务状态成功",
+      });
+    } else {
+      next(new Error("任务项不存在"));
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
- * 全局错误处理中间件
+ * 全局异常处理中间件
  */
 function errorHandleMiddleware(err, req, res, next) {
   if (err) {
     res.status(500).json({
       code: 1,
       data: null,
-      msg: err.message || "sss",
+      msg: err.message,
     });
   } else {
     next();
