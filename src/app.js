@@ -2,7 +2,7 @@
  * @Author: 吴灏
  * @Date: 2021-08-03 21:56:23
  * @LastEditors: 吴灏
- * @LastEditTime: 2021-08-04 00:28:29
+ * @LastEditTime: 2021-08-04 00:30:45
  * @Description: file content
  */
 const express = require("express");
@@ -27,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /**
  * 规定：
  * 1.所有的错误使用错误码500处理
- *
  */
 
 // #region 公用常量

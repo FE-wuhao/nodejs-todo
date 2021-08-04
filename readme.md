@@ -2,7 +2,7 @@
  * @Author: 吴灏
  * @Date: 2021-08-03 21:42:34
  * @LastEditors: 吴灏
- * @LastEditTime: 2021-08-03 23:21:43
+ * @LastEditTime: 2021-08-04 20:16:15
  * @Description: file content
 -->
 ### 项目搭建步骤
@@ -28,3 +28,16 @@
    指令：npx sequelize-cli db:migrate
 
 # API使用ORM模型
+
+# 项目的发布和运维
+1. 工具：pm2
+2. 使用步骤：
+   1. yarn global add pm2
+   2. pm2 init生成运维配置文件ecosystem.config.js
+   3. 修改配置文件
+   4. 服务器拉取代码，安装依赖
+   5. pm2 start ecosystem.config.js指令，运行服务
+3. pm2常用指令：
+   1. pm2 start 配置文件
+   2. pm2 log 
+   3. pm2 restart ecosystem.config.js
